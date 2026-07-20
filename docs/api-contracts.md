@@ -99,8 +99,8 @@ interface QueryResponse {
 ### Response Rules
 
 - Supported answers must include at least one citation.
-- `citationCoverage` must be between `0` and `1`.
-- `retrievalQualityScore` must be between `0` and `1`.
+- `citationCoverage` must be between `0` and `100`.
+- `retrievalQualityScore` must be between `0` and `100`.
 - `notFound` must be `true` when sufficient evidence is unavailable.
 - `safetyFlag` must be `true` when unsafe or suspicious input is detected.
 - `limitation` must explain incomplete, uncertain, or refused answers.
@@ -123,8 +123,8 @@ interface QueryResponse {
       "relevanceScore": 0.95
     }
   ],
-  "citationCoverage": 1,
-  "retrievalQualityScore": 0.95,
+  "citationCoverage": 100,
+  "retrievalQualityScore": 95,
   "confidence": "high",
   "notFound": false,
   "safetyFlag": false,

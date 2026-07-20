@@ -1,0 +1,22 @@
+[
+  {
+    "id": "DOC-001",
+    "title": "Student Attendance Policy",
+    "version": "2026.1",
+    "category": "Academic Regulations",
+    "approvalStatus": "approved",
+    "uploadedAt": "2026-07-20T00:00:00.000Z",
+    "approvedBy": "University Department",
+    "sourceType": "markdown"
+  },
+  {
+    "id": "DOC-002",
+    "title": "Examination Policy",
+    "version": "2026.1",
+    "category": "Academic Regulations",
+    "approvalStatus": "approved",
+    "uploadedAt": "2026-07-20T00:00:00.000Z",
+    "approvedBy": "University Department",
+    "sourceType": "markdown"
+  }
+]
