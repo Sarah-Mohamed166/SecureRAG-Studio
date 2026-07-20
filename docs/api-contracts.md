@@ -123,8 +123,8 @@ interface QueryResponse {
       "relevanceScore": 0.95
     }
   ],
-  "citationCoverage": 1,
-  "retrievalQualityScore": 0.95,
+  "citationCoverage": 100,
+  "retrievalQualityScore": 95,
   "confidence": "high",
   "notFound": false,
   "safetyFlag": false,
