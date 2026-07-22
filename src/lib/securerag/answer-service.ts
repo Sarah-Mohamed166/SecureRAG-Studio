@@ -1,4 +1,4 @@
-import type { AIProvider } from "@/lib/ai/provider";
+import type { AIProvider } from "@/lib/ai/providers";
 import { logger, hashForLogging } from "@/lib/securerag/logger";
 import { getConfig } from "@/lib/securerag/config";
 
