@@ -1,4 +1,4 @@
-import type { GenerateAnswerInput } from "./provider";
+import type { GenerateAnswerInput } from "./providers";
 
 /**
  * Builds the grounded prompt sent to the AI provider.
