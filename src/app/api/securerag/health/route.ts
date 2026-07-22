@@ -1,15 +1,23 @@
-import { NextResponse } from "next/server";
+import { getConfig } from "@/lib/securerag/config";
 
 export async function GET() {
-  return NextResponse.json(
+  const config = getConfig();
+  const isProviderConfigured = Boolean(config.geminiApiKey);
+
+  return Response.json(
     {
-      status: "healthy",
+      status: isProviderConfigured ? "healthy" : "degraded",
       service: "SecureRAG Studio",
-      version: "1.0.0",
+      environment: config.nodeEnv,
+      checks: {
+        api: "available",
+        providerConfigured: isProviderConfigured,
+      },
       timestamp: new Date().toISOString(),
     },
     {
-      status: 200,
+      // Never expose the key itself -- only whether it's configured.
+      status: isProviderConfigured ? 200 : 503,
     },
   );
 }
