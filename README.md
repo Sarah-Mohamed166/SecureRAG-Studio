@@ -74,7 +74,7 @@ The objective is to build an AI assistant that organizations can trust because e
 
 | Field | Information |
 |------|-------------|
-| Name | Sara Waleed Mohamed |
+| Name | Sara Walid Mohamed |
 | Role | Integration Lead / Solution Architect |
 | GitHub | Sarah-Mohamed166 |
 | Team | Team 16 |
@@ -101,7 +101,7 @@ The Integration Lead ensures that every module produced by the team works togeth
 
 | Member | Role | Main Responsibilities |
 |---------|------|----------------------|
-| Sara Waleed Mohamed | Integration Lead / Solution Architect | Architecture, integration, deployment, contracts |
+| Sara Walid Mohamed | Integration Lead / Solution Architect | Architecture, integration, deployment, contracts |
 | Somaya Osama | RAG & Backend Engineer | Retrieval, backend APIs, document processing |
 | Mohab Elsaway | Product UI, Security & Evaluation Engineer | Frontend, evaluation dashboard, security testing |
 
@@ -118,7 +118,7 @@ SecureRAG-Studio
 │
 ├── dev
 │
-├── feature/architecture-integration
+├── feature/<task-name>
 │
 ├── feature/rag-backend
 │
@@ -1464,7 +1464,7 @@ All team members remain responsible for the submitted work.
 
 | Name | Role |
 |------|------|
-| Sara Waleed Mohamed | Integration Lead / Solution Architect |
+| Sara Walid Mohamed | Integration Lead / Solution Architect |
 | Somaya Osama | RAG & Backend Engineer |
 | Mohab Elsaway | Product UI, Security & Evaluation Engineer |
 
