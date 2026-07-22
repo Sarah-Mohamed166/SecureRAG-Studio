@@ -1,4 +1,8 @@
-import type { AIProvider, GenerateAnswerInput, GeneratedAnswer } from "./provider";
+import type {
+  AIProvider,
+  GenerateAnswerInput,
+  GeneratedAnswer,
+} from "./providers";
 import { buildGroundedPrompt } from "./prompt-builder";
 import { getConfig } from "@/lib/securerag/config";
 import {
