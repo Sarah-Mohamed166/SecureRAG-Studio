@@ -391,7 +391,8 @@ Benefits include:
 
 # Structured Response
 
-Every API response follows a fixed schema.
+Session 1 defines the fixed grounded-answer contract below. Wiring the
+`/query` route to generate this response belongs to a later session.
 
 ```json
 {
@@ -402,9 +403,10 @@ Every API response follows a fixed schema.
   "evidence_snippet": "Students are required to attend at least 75%...",
   "confidence": "High",
   "citation_coverage": 1,
-  "retrieval_score": 0.94,
+  "relevance_score": 0.94,
   "not_found": false,
-  "limitations": null
+  "safety_flag": false,
+  "limitation": null
 }
 ```
 
@@ -423,11 +425,12 @@ the system safely refuses the request.
   "source_title":null,
   "source_id":null,
   "evidence_snippet":null,
-  "confidence":"Low",
+  "confidence":"None",
   "citation_coverage":0,
-  "retrieval_score":0,
+  "relevance_score":0,
   "not_found":true,
-  "limitations":"No supporting evidence exists inside the approved corpus."
+  "safety_flag":false,
+  "limitation":"No supporting evidence exists inside the approved corpus."
 }
 ```
 
