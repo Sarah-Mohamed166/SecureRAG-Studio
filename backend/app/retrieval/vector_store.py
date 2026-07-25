@@ -3,6 +3,9 @@ from app.models.retrieval_result import RetrievalResult
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
+    FieldCondition,
+    Filter,
+    MatchValue,
     PointStruct,
     VectorParams,
 )
@@ -48,6 +51,7 @@ class VectorStore:
     def upsert_chunks(
         self,
         embedded_chunks: list[EmbeddedChunk],
+        corpus_id: str = "default",
     ):
 
         points = []
@@ -67,6 +71,7 @@ class VectorStore:
                         "page": chunk.page,
                         "section": chunk.section,
                         "chunk_index": chunk.chunk_index,
+                        "corpus_id": corpus_id,
                     },
                 )
             )
@@ -80,14 +85,28 @@ class VectorStore:
         query_vector: list[float],
         top_k: int = 5,
         score_threshold: float = 0.65,
+        corpus_id: str = "default",
     ) -> list[RetrievalResult]:
         """
         Search for the most relevant chunks.
         """
 
+        query_filter = None
+
+        if corpus_id != "default":
+            query_filter = Filter(
+                must=[
+                    FieldCondition(
+                        key="corpus_id",
+                        match=MatchValue(value=corpus_id),
+                    )
+                ]
+            )
+
         response = self.client.query_points(
             collection_name=self.collection_name,
             query=query_vector,
+            query_filter=query_filter,
             limit=top_k,
             with_payload=True,
         )
