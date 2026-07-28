@@ -35,7 +35,10 @@ async def retrieve(
         )
 
     # Retrieve relevant chunks
-    results = retriever.retrieve(request.query)
+    results = retriever.retrieve(
+        request.query,
+        corpus_id=request.corpus_id,
+    )
 
     return RetrieveResponse(
         status="success",

@@ -15,6 +15,7 @@ class _StrictContract(BaseModel):
 
     model_config = ConfigDict(
         extra="forbid",
+        populate_by_name=True,
         strict=True,
         str_strip_whitespace=True,
     )
@@ -63,6 +64,14 @@ class QueryRequest(_StrictContract):
         validation_alias=AliasChoices("question", "query"),
         description="User question; the legacy input name 'query' is also accepted",
     )
+    corpus_id: str = Field(
+        "default",
+        min_length=1,
+        max_length=128,
+        validation_alias=AliasChoices("corpusId", "corpus_id"),
+        serialization_alias="corpusId",
+        description="Bounded approved corpus identifier",
+    )
 
     @property
     def query(self) -> str:
@@ -71,22 +80,66 @@ class QueryRequest(_StrictContract):
         return self.question
 
 
-ConfidenceLevel = Literal["High", "Medium", "Low", "None"]
+ConfidenceLevel = Literal["high", "medium", "low"]
+
+
+class Citation(_StrictContract):
+    """Source evidence that supports a generated answer."""
+
+    source_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=128,
+        serialization_alias="sourceId",
+    )
+    source_title: str = Field(
+        ...,
+        min_length=1,
+        max_length=300,
+        serialization_alias="sourceTitle",
+    )
+    evidence_snippet: str = Field(
+        ...,
+        min_length=1,
+        serialization_alias="evidenceSnippet",
+    )
+    page: int | None = None
+    chunk_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=128,
+        serialization_alias="chunkId",
+    )
+    relevance_score: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        serialization_alias="relevanceScore",
+    )
 
 
 class AnswerResponse(_StrictContract):
-    """Exact structured answer contract agreed for Session 1."""
+    """Structured answer contract returned by the query orchestration route."""
 
     question: str = Field(..., min_length=1, max_length=1000)
     answer: str | None = Field(..., min_length=1)
-    source_id: str | None = Field(..., min_length=1, max_length=128)
-    source_title: str | None = Field(..., min_length=1, max_length=300)
-    evidence_snippet: str | None = Field(..., min_length=1)
-    relevance_score: float = Field(..., ge=0.0, le=1.0)
-    citation_coverage: float = Field(..., ge=0.0, le=1.0)
+    citations: list[Citation]
+    evidence: list[str]
+    citation_coverage: float = Field(
+        ...,
+        ge=0.0,
+        le=100.0,
+        serialization_alias="citationCoverage",
+    )
+    retrieval_quality_score: float = Field(
+        ...,
+        ge=0.0,
+        le=100.0,
+        serialization_alias="retrievalQualityScore",
+    )
     confidence: ConfidenceLevel
-    not_found: StrictBool
-    safety_flag: StrictBool
+    not_found: StrictBool = Field(..., serialization_alias="notFound")
+    safety_flag: StrictBool = Field(..., serialization_alias="safetyFlag")
     limitation: str | None = Field(..., min_length=1)
 
     @model_validator(mode="after")
@@ -98,40 +151,40 @@ class AnswerResponse(_StrictContract):
         the same no-answer shape as any other not-found result.
         """
 
-        evidence_fields = (
-            self.answer,
-            self.source_id,
-            self.source_title,
-            self.evidence_snippet,
-        )
-
         if self.not_found:
-            if any(value is not None for value in evidence_fields):
+            if self.answer is not None:
                 raise ValueError(
-                    "not_found responses cannot contain an answer or source evidence"
+                    "not_found responses cannot contain an answer"
                 )
-            if self.relevance_score != 0.0 or self.citation_coverage != 0.0:
+            if self.citations or self.evidence:
                 raise ValueError(
-                    "not_found responses require zero relevance and citation coverage"
+                    "not_found responses cannot contain citations or evidence"
                 )
-            if self.confidence != "None":
-                raise ValueError("not_found responses require confidence='None'")
+            if (
+                self.retrieval_quality_score != 0.0
+                or self.citation_coverage != 0.0
+            ):
+                raise ValueError(
+                    "not_found responses require zero retrieval quality and citation coverage"
+                )
+            if self.confidence != "low":
+                raise ValueError("not_found responses require confidence='low'")
             if self.limitation is None:
                 raise ValueError("not_found responses require a limitation")
             return self
 
         if self.safety_flag:
             raise ValueError("safety_flag=True requires not_found=True")
-        if any(value is None for value in evidence_fields):
+        if self.answer is None:
+            raise ValueError("supported responses require an answer")
+        if not self.citations or not self.evidence:
             raise ValueError(
-                "supported responses require an answer and complete source evidence"
+                "supported responses require citations and evidence"
             )
-        if self.relevance_score <= 0.0 or self.citation_coverage <= 0.0:
+        if self.retrieval_quality_score <= 0.0 or self.citation_coverage <= 0.0:
             raise ValueError(
-                "supported responses require positive relevance and citation coverage"
+                "supported responses require positive retrieval quality and citation coverage"
             )
-        if self.confidence == "None":
-            raise ValueError("supported responses require a confidence level")
 
         return self
 
@@ -146,6 +199,12 @@ class RetrieveRequest(BaseModel):
         min_length=1,
         max_length=1000,
         description="User query",
+    )
+    corpus_id: str = Field(
+        "default",
+        validation_alias=AliasChoices("corpusId", "corpus_id"),
+        serialization_alias="corpusId",
+        description="Bounded approved corpus identifier",
     )
 
 
@@ -171,16 +230,6 @@ class IngestResponse(BaseModel):
     documents: int
     chunks: int
     message: str
-
-
-# ==========================================
-# Legacy/Exploratory Query Schemas
-# ==========================================
-
-class Citation(BaseModel):
-    filename: str
-    page: int | None = None
-    snippet: str
 
 
 # Backwards-compatible name for code that imported the earlier response class.
