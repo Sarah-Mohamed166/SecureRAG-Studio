@@ -20,6 +20,7 @@ class Retriever:
     def retrieve(
         self,
         query: str,
+        corpus_id: str = "default",
         top_k: int = settings.TOP_K,
         score_threshold: float = settings.SCORE_THRESHOLD,
     ) -> list[RetrievalResult]:
@@ -33,4 +34,5 @@ class Retriever:
             query_vector=query_vector,
             top_k=top_k,
             score_threshold=score_threshold,
+            corpus_id=corpus_id,
         )

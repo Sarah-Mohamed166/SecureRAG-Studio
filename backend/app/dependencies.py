@@ -38,3 +38,21 @@ def get_retriever() -> Any:
         vector_store=get_vector_store(),
         embedder=get_embedder(),
     )
+
+
+@lru_cache(maxsize=1)
+def get_prompt_builder() -> Any:
+    """Share the prompt builder used by the query orchestration route."""
+
+    from app.generation.prompt_builder import PromptBuilder
+
+    return PromptBuilder()
+
+
+@lru_cache(maxsize=1)
+def get_ai_provider() -> Any:
+    """Return the replaceable AI provider boundary."""
+
+    from app.generation.provider import PlaceholderAIProvider
+
+    return PlaceholderAIProvider()

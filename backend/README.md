@@ -31,3 +31,4 @@ python -m uvicorn app.main:app --reload
 The root and `/health` endpoints do not load the embedding model or connect to
 Qdrant. Calling the exploratory ingestion/retrieval routes still requires their
 later-session services.
+
