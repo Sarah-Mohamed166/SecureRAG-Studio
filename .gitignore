@@ -141,3 +141,49 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+# -----------------------
+# Python
+# -----------------------
+
+# Virtual environments
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest
+.pytest_cache/
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+# ---------------------------------------------------------------------------
+# SecureRAG Studio
+# ---------------------------------------------------------------------------
+
+# Generated evaluation reports (regenerate with: npm run eval)
+evaluation/results/
+
+# Local test artefacts
+/test-results/
+/playwright-report/
+
+# Never commit a real key file
+*.pem
+*.key
+secrets.json
