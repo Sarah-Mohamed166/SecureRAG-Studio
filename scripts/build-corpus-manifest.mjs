@@ -162,7 +162,7 @@ const securityLab = {
 
 const manifest = {
   version: "1.0.0",
-  generatedAt: new Date().toISOString(),
+  generatedAt: "2026-07-28T16:55:42.448Z",
   corpora: [universityPolicies, ragResearch, securityLab],
 };
 
