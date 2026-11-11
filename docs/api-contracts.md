@@ -87,12 +87,16 @@ interface QueryResponse {
   question: string;
   answer: string;
   citations: Citation[];
+  /** Exact supporting snippets, in the same order as `citations`. */
+  evidence: string[];
   citationCoverage: number;
   retrievalQualityScore: number;
   confidence: "high" | "medium" | "low";
   notFound: boolean;
   safetyFlag: boolean;
   limitation: string | null;
+  /** Correlates the response with the server logs. */
+  requestId: string;
 }
 ```
 
@@ -104,6 +108,9 @@ interface QueryResponse {
 - `notFound` must be `true` when sufficient evidence is unavailable.
 - `safetyFlag` must be `true` when unsafe or suspicious input is detected.
 - `limitation` must explain incomplete, uncertain, or refused answers.
+- `evidence` must contain exactly one entry per citation.
+- `requestId` must be present on every response, including errors.
+- Every citation must be verifiable against a chunk that was actually retrieved.
 
 ---
 
@@ -123,12 +130,16 @@ interface QueryResponse {
       "relevanceScore": 0.95
     }
   ],
+  "evidence": [
+    "Students are required to attend at least 75% of scheduled classes."
+  ],
   "citationCoverage": 100,
   "retrievalQualityScore": 95,
   "confidence": "high",
   "notFound": false,
   "safetyFlag": false,
-  "limitation": null
+  "limitation": null,
+  "requestId": "req_9f1c..."
 }
 ```
 
@@ -141,12 +152,14 @@ interface QueryResponse {
   "question": "What salary will graduates receive?",
   "answer": "",
   "citations": [],
+  "evidence": [],
   "citationCoverage": 0,
   "retrievalQualityScore": 0,
   "confidence": "low",
   "notFound": true,
   "safetyFlag": false,
-  "limitation": "No supporting evidence was found in the approved corpus."
+  "limitation": "No supporting evidence was found in the approved corpus.",
+  "requestId": "req_9f1c..."
 }
 ```
 
@@ -159,6 +172,7 @@ interface ErrorResponse {
   errorCode: string;
   message: string;
   retryable: boolean;
+  requestId: string;
 }
 ```
 
@@ -168,7 +182,8 @@ interface ErrorResponse {
 {
   "errorCode": "INVALID_QUERY",
   "message": "The question field is required.",
-  "retryable": true
+  "retryable": true,
+  "requestId": "req_9f1c..."
 }
 ```
 
@@ -185,7 +200,77 @@ interface ErrorResponse {
 | `MODEL_FAILED` | AI provider request failed |
 | `INVALID_MODEL_OUTPUT` | Generated output did not match the schema |
 | `SAFETY_REJECTION` | Request was blocked for security reasons |
+| `CONFIGURATION_ERROR` | The platform is not configured (for example a missing API key) |
 | `INTERNAL_ERROR` | Unexpected server error |
+
+---
+
+## Documents Contract
+
+`GET /api/securerag/documents`
+
+```typescript
+interface DocumentsResponse {
+  corpora: CorpusSummary[];
+  requestId: string;
+}
+
+interface CorpusSummary {
+  corpusId: string;
+  title: string;
+  description: string;
+  approvedDocumentCount: number;
+  excludedDocumentCount: number;
+  /** Approved documents only. Rejected and pending documents are never listed. */
+  documents: ApprovedDocument[];
+}
+```
+
+`POST /api/securerag/documents`
+
+```typescript
+interface LoadDocumentsRequest {
+  corpusId: string;
+}
+
+interface LoadDocumentsResponse {
+  corpusId: string;
+  title: string;
+  approvedDocumentCount: number;
+  excludedDocumentCount: number;
+  chunkCount: number;
+  documents: ApprovedDocument[];
+  requestId: string;
+}
+```
+
+---
+
+## Health Contract
+
+`GET /api/securerag/health`
+
+```typescript
+interface HealthResponse {
+  status: "healthy" | "degraded";
+  service: string;
+  environment: string;
+  checks: {
+    api: "available";
+    providerConfigured: boolean;
+    provider: string;
+    corpusAvailable: boolean;
+    corpusCount: number;
+    approvedDocumentCount: number;
+  };
+  /** Names of misconfigured variables. Never their values. */
+  issues: string[];
+  timestamp: string;
+  requestId: string;
+}
+```
+
+Returns `200` when healthy and `503` when degraded.
 
 ---
 
